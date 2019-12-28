@@ -1,0 +1,38 @@
+{
+    "name": "node-red-contrib-lot",
+    "version": "0.0.4",
+    "description": "Node-RED GPIO development library",
+    "keywords": [
+        "iot",
+        "node-red",
+        "gpio",
+        "lot"
+    ],
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Seungwoo Hong",
+            "email": "qksn1541@gmail.com"
+        },
+        {
+            "name": "Hyeonki Hong",
+            "email": "hhk7734@gmail.com"
+        }
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/loliot/node-red-contrib-lot.git"
+    },
+    "bugs": {
+        "url": "https://github.com/loliot/node-red-contrib-lot/issues"
+    },
+    "homepage": "https://github.com/loliot/node-red-contrib-lot",
+    "dependencies": {
+        "lot-gpio": "*"
+    },
+    "node-red": {
+        "nodes": {
+            "gpio": "nodes/gpio.js"
+        }
+    }
+}
