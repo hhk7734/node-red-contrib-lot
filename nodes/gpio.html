@@ -1,0 +1,112 @@
+<!--
+/*
+ * MIT License
+ * Copyright (c) 2019 Seungwoo Hong <qksn1541@gmail.com>
+ * Copyright (c) 2019 Hyeonki Hong <hhk7734@gmail.com>
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+-->
+
+<!--
+    lot: set_pin_mode(pin, mode)
+-->
+
+<script type="text/javascript">
+    RED.nodes.registerType("lot-set-pin-mode", {
+        category: "gpio",
+        color: "#2266aa",
+        defaults: {
+            name: { value: "" },
+            pin: {
+                value: null,
+                required: true,
+                validate: RED.validators.number()
+            },
+            mode: { value: "OUTPUT", required: true }
+        },
+        inputs: 0,
+        outputs: 0,
+        icon: "cog.svg",
+        label: function() {
+            return this.name || "lot-set-pin-mode";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="lot-set-pin-mode">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-pin"><i class="icon-tag"></i> Pin</label>
+        <input type="number" id="node-input-pin" placeholder="Pin">
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode"><i class="icon-tag"></i> Mode</label>
+        <input type="text" id="node-input-mode" placeholder="Mode">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="lot-digital-write">
+    <p></p>
+</script>
+
+<!--
+    lot: digital_write(pin, status)
+-->
+
+<script type="text/javascript">
+    RED.nodes.registerType("lot-digital-write", {
+        category: "gpio",
+        color: "#2266aa",
+        defaults: {
+            name: { value: "" },
+            pin: {
+                value: null,
+                required: true,
+                validate: RED.validators.number()
+            }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "serial.svg",
+        label: function() {
+            return this.name || "lot-digital-write";
+        },
+        inputLabels: "Pin",
+        outputLabels: "Status"
+    });
+</script>
+
+<script type="text/x-red" data-template-name="lot-digital-write">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-pin"><i class="icon-tag"></i> Pin</label>
+        <input type="number" id="node-input-pin" placeholder="Pin">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="lot-digital-write">
+    <p></p>
+</script>
