@@ -1,0 +1,6 @@
+node-red-contrib-lot (0.1.0) unstable; urgency=medium
+
+  * Implement lot.pin for <select>
+  * Implement lot.Gpio.mode/toggle
+
+ -- Hyeonki Hong <hhk7734@gmail.com>  Thu, 09 Jan 2020 18:15:24 +0900
