@@ -1,18 +1,19 @@
 /*
  * MIT License
+ *
  * Copyright (c) 2019 Seungwoo Hong <qksn1541@gmail.com>
- * Copyright (c) 2019 Hyeonki Hong <hhk7734@gmail.com>
- * 
+ * Copyright (c) 2019-2020 Hyeonki Hong <hhk7734@gmail.com>
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,43 +25,110 @@
 
 const lot = require("lot-gpio");
 
+let active_gpio_list = {};
+const pin_mode_str = [
+    "ALT0",
+    "ALT1",
+    "ALT2",
+    "ALT3",
+    "ALT4",
+    "ALT5",
+    "ALT6",
+    "ALT7",
+    "DIN",
+    "DOUT",
+    "AIN",
+    "AOUT",
+    "PWM"
+];
+
 module.exports = function(RED) {
-    function lot_set_pin_mode_node(config) {
+    /*
+     * lot.Gpio(pin)
+     * lot.Gpio.mode(mode)
+     */
+    function lot_Gpio_mode_node(config) {
         RED.nodes.createNode(this, config);
 
-        this.status({
+        let node = this;
+        const pin = parseInt(RED.nodes.getNode(config.pin).pin);
+        const mode = parseInt(config.mode);
+
+        if (!(pin in active_gpio_list)) {
+            active_gpio_list[pin] = new lot.Gpio(pin);
+        }
+
+        active_gpio_list[pin].mode(mode);
+
+        node.status({
             fill: "green",
             shape: "dot",
-            text: config.pin + "-" + config.mode
+            text: pin + "-" + pin_mode_str[mode]
         });
 
-        lot.set_pin_mode(parseInt(config.pin), config.mode);
+        this.on("close", () => {
+            delete active_gpio_list[pin];
+        });
     }
-    RED.nodes.registerType("lot-set-pin-mode", lot_set_pin_mode_node);
+    RED.nodes.registerType("lot.Gpio.mode", lot_Gpio_mode_node);
 
-    function lot_digital_write_node(config) {
+    /*
+     * lot.Gpio.toggle()
+     */
+    function lot_Gpio_toggle_node(config) {
         RED.nodes.createNode(this, config);
+
         let node = this;
+        const pin = parseInt(RED.nodes.getNode(config.pin).pin);
 
-        this.on("input", function(msg) {
-            lot.digital_write(parseInt(config.pin), msg.payload);
-
-            if (msg.payload == "HIGH") {
-                node.status({
-                    fill: "red",
-                    shape: "dot",
-                    text: config.pin + "-HIGH"
-                });
-            } else {
-                node.status({
-                    fill: "grey",
-                    shape: "ring",
-                    text: config.pin + "-LOW"
-                });
+        setTimeout(() => {
+            if (!(pin in active_gpio_list)) {
+                node.error("Set lot.Gpio.mode first for " + pin + " pin.");
             }
 
-            node.send(msg);
-        });
+            node.on("input", msg => {
+                const status = active_gpio_list[pin].toggle();
+                if (status == lot.HIGH) {
+                    node.status({
+                        fill: "red",
+                        shape: "dot",
+                        text: pin + "-HIGH"
+                    });
+                } else {
+                    node.status({
+                        fill: "grey",
+                        shape: "ring",
+                        text: pin + "-LOW"
+                    });
+                }
+                msg.payload = status;
+                node.send(msg);
+            });
+        }, 200);
     }
-    RED.nodes.registerType("lot-digital-write", lot_digital_write_node);
+    RED.nodes.registerType("lot.Gpio.toggle", lot_Gpio_toggle_node);
+
+    // lot.Gpio.toggle.button
+    RED.httpAdmin.post(
+        "/lot.Gpio.toggle/:id",
+        RED.auth.needsPermission("lot.Gpio.toggle.write"),
+        function(req, res) {
+            var node = RED.nodes.getNode(req.params.id);
+            if (node != null) {
+                try {
+                    node.receive();
+                    res.sendStatus(200);
+                } catch (err) {
+                    res.sendStatus(500);
+                    node.error(
+                        RED._("lot.Gpio.toggle.failed", {
+                            error: err.toString()
+                        })
+                    );
+                }
+            } else {
+                res.sendStatus(404);
+            }
+        }
+    );
 };
