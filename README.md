@@ -27,4 +27,4 @@ npm install node-red-contrib-lot
 
 ## Blink example
 
-![blink](https://raw.githubusercontent.com/loliot/node-red-contrib-lot/master/node-red-lot-blink.png)
+![blink](https://raw.githubusercontent.com/loliot/node-red-contrib-lot/master/node-red-lot-blink.gif)
