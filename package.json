@@ -32,7 +32,8 @@
     },
     "node-red": {
         "nodes": {
-            "gpio": "nodes/gpio.js"
+            "gpio": "nodes/gpio.js",
+            "lotdef": "nodes/lotdef.js"
         }
     }
 }
