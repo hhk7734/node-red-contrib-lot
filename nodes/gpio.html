@@ -84,6 +84,53 @@
 </script>
 
 <!--
+    lot.Gpio.pull_up_down()
+ -->
+
+<script type="text/javascript">
+    RED.nodes.registerType("lot.Gpio.pull_up_down", {
+        category: "lot.Gpio",
+        color: "#aabbee",
+        defaults: {
+            name: { value: "lot.Gpio.pull_up_down" },
+            pin: { value: "", required: true, type: "lot.pin" },
+            pud: { value: "", required: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "sort.svg",
+        label: function() {
+            return this.name;
+        },
+        inputLabels: "msg.payload.pud",
+        outputLabels: "msg.payload.pud"
+    });
+</script>
+
+<script type="text/x-red" data-template-name="lot.Gpio.pull_up_down">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="lot.Gpio.mode">
+    </div>
+    <div class="form-row">
+        <label for="node-input-pin"><i class="fa fa-tag"></i> Pin</label>
+        <input type="number" id="node-input-pin">
+    </div>
+    <div class="form-row">
+        <label for="node-input-pud"><i class="fa fa-tag"></i> PUD</label>
+        <select type="number" id="node-input-pud">
+            <option value="0">PULL_OFF</option>
+            <option value="1">PULL_DOWN</option>
+            <option value="2">PULL_UP</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="lot.Gpio.pull_up_down">
+    <p></p>
+</script>
+
+<!--
     lot.Gpio.toggle()
  -->
 
