@@ -45,7 +45,6 @@ const pin_pud_str = ["PULL_OFF", "PULL_DOWN", "PULL_UP"];
 
 module.exports = function(RED) {
     /*
-     * lot.Gpio(pin)
      * lot.Gpio.mode(mode)
      */
     function lot_Gpio_mode_node(config) {
@@ -74,7 +73,11 @@ module.exports = function(RED) {
                 node.send(msg);
             } else {
                 mode = active_gpio_list[pin].mode();
-                msg.payload = { mode: mode };
+                if (typeof msg.payload === "object") {
+                    msg.payload.mode = mode;
+                } else {
+                    msg.payload = { mode: mode };
+                }
                 node.send(msg);
             }
             node.status({
@@ -138,7 +141,11 @@ module.exports = function(RED) {
                 node.send(msg);
             } else {
                 pud = active_gpio_list[pin].pull_up_down();
-                msg.payload = { pud: pud };
+                if (typeof msg.payload === "object") {
+                    msg.payload.pud = pud;
+                } else {
+                    msg.payload = { pud: pud };
+                }
                 node.send(msg);
             }
             pud_status(pud);
@@ -178,7 +185,11 @@ module.exports = function(RED) {
                     text: pin + "-LOW"
                 });
             }
-            msg.payload = { status: status };
+            if (typeof msg.payload === "object") {
+                msg.payload.status = status;
+            } else {
+                msg.payload = { status: status };
+            }
             node.send(msg);
         });
 
