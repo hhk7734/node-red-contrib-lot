@@ -26,22 +26,50 @@
 const lot = require("lot-gpio");
 
 let active_gpio_list = {};
-const pin_mode_str = [
-    "ALT0",
-    "ALT1",
-    "ALT2",
-    "ALT3",
-    "ALT4",
-    "ALT5",
-    "ALT6",
-    "ALT7",
-    "DIN",
-    "DOUT",
-    "AIN",
-    "AOUT",
-    "PWM"
-];
-const pin_pud_str = ["PULL_OFF", "PULL_DOWN", "PULL_UP"];
+const pin_map = {
+    mode: {
+        [lot.ALT0]: "lot.ALT0",
+        [lot.ALT1]: "lot.ALT1",
+        [lot.ALT2]: "lot.ALT2",
+        [lot.ALT3]: "lot.ALT3",
+        [lot.ALT4]: "lot.ALT4",
+        [lot.ALT5]: "lot.ALT5",
+        [lot.ALT6]: "lot.ALT6",
+        [lot.ALT7]: "lot.ALT7",
+        [lot.DIN]: "lot.DIN",
+        [lot.DOUT]: "lot.DOUT",
+        [lot.AIN]: "lot.AIN",
+        [lot.AOUT]: "lot.AOUT",
+        [lot.PWM]: "lot.PWM",
+        "lot.ALT0": lot.ALT0,
+        "lot.ALT1": lot.ALT1,
+        "lot.ALT2": lot.ALT2,
+        "lot.ALT3": lot.ALT3,
+        "lot.ALT4": lot.ALT4,
+        "lot.ALT5": lot.ALT5,
+        "lot.ALT6": lot.ALT6,
+        "lot.ALT7": lot.ALT7,
+        "lot.DIN": lot.DIN,
+        "lot.DOUT": lot.DOUT,
+        "lot.AIN": lot.AIN,
+        "lot.AOUT": lot.AOUT,
+        "lot.PWM": lot.PWM
+    },
+    pud: {
+        [lot.PULL_OFF]: "lot.PULL_OFF",
+        [lot.PULL_DOWN]: "lot.PULL_DOWN",
+        [lot.PULL_UP]: "lot.PULL_UP",
+        "lot.PULL_OFF": lot.PULL_OFF,
+        "lot.PULL_DOWN": lot.PULL_DOWN,
+        "lot.PULL_UP": lot.PULL_UP
+    },
+    status: {
+        [lot.LOW]: "lot.LOW",
+        [lot.HIGH]: "lot.HIGH",
+        "lot.LOW": lot.LOW,
+        "lot.HIGH": lot.HIGH
+    }
+};
 
 module.exports = function(RED) {
     /*
@@ -52,27 +80,28 @@ module.exports = function(RED) {
 
         const node = this;
         const pin = parseInt(RED.nodes.getNode(config.pin).pin);
-        let mode = parseInt(config.mode);
+        let mode = config.mode; // mode = string
 
         if (!(pin in active_gpio_list)) {
             active_gpio_list[pin] = new lot.Gpio(pin);
         }
 
-        active_gpio_list[pin].mode(mode);
+        active_gpio_list[pin].mode(pin_map.mode[mode]);
 
         node.status({
             fill: "green",
             shape: "dot",
-            text: pin + "-" + pin_mode_str[mode]
+            text: pin + "-" + mode
         });
 
         node.on("input", msg => {
             if (msg.payload.mode != undefined) {
-                mode = parseInt(msg.payload.mode);
-                active_gpio_list[pin].mode(mode);
+                mode = msg.payload.mode; // string
+                active_gpio_list[pin].mode(pin_map.mode[mode]);
                 node.send(msg);
             } else {
-                mode = active_gpio_list[pin].mode();
+                mode = active_gpio_list[pin].mode(); // number
+                mode = pin_map.mode[mode]; // number -> string
                 if (typeof msg.payload === "object") {
                     msg.payload.mode = mode;
                 } else {
@@ -83,7 +112,7 @@ module.exports = function(RED) {
             node.status({
                 fill: "green",
                 shape: "dot",
-                text: pin + "-" + pin_mode_str[mode]
+                text: pin + "-" + mode
             });
         });
 
@@ -101,17 +130,17 @@ module.exports = function(RED) {
 
         const node = this;
         const pin = parseInt(RED.nodes.getNode(config.pin).pin);
-        let pud = parseInt(config.pud);
+        let pud = config.pud; // string
 
         if (!(pin in active_gpio_list)) {
             active_gpio_list[pin] = new lot.Gpio(pin);
         }
 
-        active_gpio_list[pin].pull_up_down(pud);
+        active_gpio_list[pin].pull_up_down(pin_map.pud[pud]);
 
         function pud_status(pud) {
             let status = {};
-            switch (pud) {
+            switch (pin_map.pud[pud]) {
                 case lot.PULL_OFF:
                     status.fill = "grey";
                     status.shape = "ring";
@@ -128,7 +157,7 @@ module.exports = function(RED) {
             node.status({
                 fill: status.fill,
                 shape: status.shape,
-                text: pin + "-" + pin_pud_str[pud]
+                text: pin + "-" + pud
             });
         }
 
@@ -136,11 +165,12 @@ module.exports = function(RED) {
 
         node.on("input", msg => {
             if (msg.payload.pud != undefined) {
-                pud = parseInt(msg.payload.pud);
-                active_gpio_list[pin].pull_up_down(pud);
+                pud = msg.payload.pud; // string
+                active_gpio_list[pin].pull_up_down(pin_map.pud[pud]);
                 node.send(msg);
             } else {
-                pud = active_gpio_list[pin].pull_up_down();
+                pud = active_gpio_list[pin].pull_up_down(); // number
+                pud = pin_map.pud[pud]; // number -> string
                 if (typeof msg.payload === "object") {
                     msg.payload.pud = pud;
                 } else {
@@ -171,18 +201,19 @@ module.exports = function(RED) {
         }
 
         node.on("input", msg => {
-            const status = active_gpio_list[pin].toggle();
-            if (status == lot.HIGH) {
+            let status = active_gpio_list[pin].toggle(); // number
+            status = pin_map.status[status]; // number -> string
+            if (status == "lot.HIGH") {
                 node.status({
                     fill: "red",
                     shape: "dot",
-                    text: pin + "-HIGH"
+                    text: pin + "-" + status
                 });
             } else {
                 node.status({
                     fill: "grey",
                     shape: "ring",
-                    text: pin + "-LOW"
+                    text: pin + "-" + status
                 });
             }
             if (typeof msg.payload === "object") {

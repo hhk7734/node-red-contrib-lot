@@ -61,20 +61,20 @@
     </div>
     <div class="form-row">
         <label for="node-input-mode"><i class="fa fa-tag"></i> Mode</label>
-        <select type="number" id="node-input-mode">
-            <option value="8">DIN</option>
-            <option value="9">DOUT</option>
-            <option value="10">AIN</option>
-            <option value="11">AOUT</option>
-            <option value="12">PWM</option>
-            <option value="0">ALT0</option>
-            <option value="1">ALT1</option>
-            <option value="2">ALT2</option>
-            <option value="3">ALT3</option>
-            <option value="4">ALT4</option>
-            <option value="5">ALT5</option>
-            <option value="6">ALT6</option>
-            <option value="7">ALT7</option>
+        <select type="text" id="node-input-mode">
+            <option value="lot.DIN">lot.DIN</option>
+            <option value="lot.DOUT">lot.DOUT</option>
+            <option value="lot.AIN">lot.AIN</option>
+            <option value="lot.AOUT">lot.AOUT</option>
+            <option value="lot.PWM">lot.PWM</option>
+            <option value="lot.ALT0">lot.ALT0</option>
+            <option value="lot.ALT1">lot.ALT1</option>
+            <option value="lot.ALT2">lot.ALT2</option>
+            <option value="lot.ALT3">lot.ALT3</option>
+            <option value="lot.ALT4">lot.ALT4</option>
+            <option value="lot.ALT5">lot.ALT5</option>
+            <option value="lot.ALT6">lot.ALT6</option>
+            <option value="lot.ALT7">lot.ALT7</option>
         </select>
     </div>
 </script>
@@ -118,10 +118,10 @@
     </div>
     <div class="form-row">
         <label for="node-input-pud"><i class="fa fa-tag"></i> PUD</label>
-        <select type="number" id="node-input-pud">
-            <option value="0">PULL_OFF</option>
-            <option value="1">PULL_DOWN</option>
-            <option value="2">PULL_UP</option>
+        <select type="text" id="node-input-pud">
+            <option value="lot.PULL_OFF">lot.PULL_OFF</option>
+            <option value="lot.PULL_DOWN">lot.PULL_DOWN</option>
+            <option value="lot.PULL_UP">lot.PULL_UP</option>
         </select>
     </div>
 </script>
@@ -216,6 +216,6 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="lot.Gpio.mode">
+<script type="text/x-red" data-help-name="lot.Gpio.toggle">
     <p></p>
 </script>
