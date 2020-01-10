@@ -188,6 +188,55 @@ module.exports = function(RED) {
     RED.nodes.registerType("lot.Gpio.pull_up_down", lot_Gpio_pull_up_down_node);
 
     /*
+     * lot.Gpio.drive()
+     */
+    function lot_Gpio_drive_node(config) {
+        RED.nodes.createNode(this, config);
+
+        const node = this;
+        const pin = parseInt(RED.nodes.getNode(config.pin).pin);
+        let drive = parseInt(config.drive);
+
+        if (!(pin in active_gpio_list)) {
+            active_gpio_list[pin] = new lot.Gpio(pin);
+        }
+
+        active_gpio_list[pin].drive(drive);
+
+        node.status({
+            fill: "yellow",
+            shape: "dot",
+            text: pin + "-" + drive
+        });
+
+        node.on("input", msg => {
+            if (msg.payload.drive != undefined) {
+                drive = msg.payload.drive;
+                active_gpio_list[pin].drive(drive);
+                node.send(msg);
+            } else {
+                drive = active_gpio_list[pin].drive();
+                if (typeof msg.payload === "object") {
+                    msg.payload.drive = drive;
+                } else {
+                    msg.payload = { drive: drive };
+                }
+                node.send(msg);
+            }
+            node.status({
+                fill: "yellow",
+                shape: "dot",
+                text: pin + "-" + drive
+            });
+        });
+
+        node.on("close", () => {
+            delete active_gpio_list[pin];
+        });
+    }
+    RED.nodes.registerType("lot.Gpio.drive", lot_Gpio_drive_node);
+
+    /*
      * lot.Gpio.toggle()
      */
     function lot_Gpio_toggle_node(config) {
