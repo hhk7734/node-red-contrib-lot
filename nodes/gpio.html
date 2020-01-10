@@ -39,12 +39,14 @@
             pin: { value: "", required: true, type: "lot.pin" },
             mode: { value: "", required: true }
         },
-        inputs: 0,
-        outputs: 0,
+        inputs: 1,
+        outputs: 1,
         icon: "cog.svg",
         label: function() {
             return this.name;
-        }
+        },
+        inputLabels: "msg.payload.mode",
+        outputLabels: "msg.payload.mode"
     });
 </script>
 

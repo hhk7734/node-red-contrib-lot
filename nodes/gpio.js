@@ -50,9 +50,9 @@ module.exports = function(RED) {
     function lot_Gpio_mode_node(config) {
         RED.nodes.createNode(this, config);
 
-        let node = this;
+        const node = this;
         const pin = parseInt(RED.nodes.getNode(config.pin).pin);
-        const mode = parseInt(config.mode);
+        let mode = parseInt(config.mode);
 
         if (!(pin in active_gpio_list)) {
             active_gpio_list[pin] = new lot.Gpio(pin);
@@ -66,7 +66,24 @@ module.exports = function(RED) {
             text: pin + "-" + pin_mode_str[mode]
         });
 
-        this.on("close", () => {
+        node.on("input", msg => {
+            if (msg.payload.mode != undefined) {
+                mode = parseInt(msg.payload.mode);
+                active_gpio_list[pin].mode(mode);
+                node.send(msg);
+            } else {
+                mode = active_gpio_list[pin].mode();
+                msg.payload = { mode: mode };
+                node.send(msg);
+            }
+            node.status({
+                fill: "green",
+                shape: "dot",
+                text: pin + "-" + pin_mode_str[mode]
+            });
+        });
+
+        node.on("close", () => {
             delete active_gpio_list[pin];
         });
     }
@@ -78,7 +95,7 @@ module.exports = function(RED) {
     function lot_Gpio_toggle_node(config) {
         RED.nodes.createNode(this, config);
 
-        let node = this;
+        const node = this;
         const pin = parseInt(RED.nodes.getNode(config.pin).pin);
 
         setTimeout(() => {
@@ -113,7 +130,7 @@ module.exports = function(RED) {
         "/lot.Gpio.toggle/:id",
         RED.auth.needsPermission("lot.Gpio.toggle.write"),
         function(req, res) {
-            var node = RED.nodes.getNode(req.params.id);
+            const node = RED.nodes.getNode(req.params.id);
             if (node != null) {
                 try {
                     node.receive();
