@@ -159,30 +159,32 @@ module.exports = function(RED) {
         const node = this;
         const pin = parseInt(RED.nodes.getNode(config.pin).pin);
 
-        setTimeout(() => {
-            if (!(pin in active_gpio_list)) {
-                node.error("Set lot.Gpio.mode first for " + pin + " pin.");
-            }
+        if (!(pin in active_gpio_list)) {
+            active_gpio_list[pin] = new lot.Gpio(pin);
+        }
 
-            node.on("input", msg => {
-                const status = active_gpio_list[pin].toggle();
-                if (status == lot.HIGH) {
-                    node.status({
-                        fill: "red",
-                        shape: "dot",
-                        text: pin + "-HIGH"
-                    });
-                } else {
-                    node.status({
-                        fill: "grey",
-                        shape: "ring",
-                        text: pin + "-LOW"
-                    });
-                }
-                msg.payload = status;
-                node.send(msg);
-            });
-        }, 200);
+        node.on("input", msg => {
+            const status = active_gpio_list[pin].toggle();
+            if (status == lot.HIGH) {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: pin + "-HIGH"
+                });
+            } else {
+                node.status({
+                    fill: "grey",
+                    shape: "ring",
+                    text: pin + "-LOW"
+                });
+            }
+            msg.payload = { status: status };
+            node.send(msg);
+        });
+
+        node.on("close", () => {
+            delete active_gpio_list[pin];
+        });
     }
     RED.nodes.registerType("lot.Gpio.toggle", lot_Gpio_toggle_node);
 
