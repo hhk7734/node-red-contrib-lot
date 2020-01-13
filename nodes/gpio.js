@@ -304,6 +304,126 @@ module.exports = function(RED) {
     RED.nodes.registerType("lot.Gpio.digital", lot_Gpio_digital_node);
 
     /*
+     * lot.Gpio.on()
+     */
+    function lot_Gpio_on_node(config) {
+        RED.nodes.createNode(this, config);
+
+        const node = this;
+        const pin = parseInt(RED.nodes.getNode(config.pin).pin);
+
+        if (!(pin in active_gpio_list)) {
+            active_gpio_list[pin] = new lot.Gpio(pin);
+        }
+
+        node.status({
+            fill: "blue",
+            shape: "dot",
+            text: pin
+        });
+
+        node.on("input", msg => {
+            const status = "lot.HIGH";
+            active_gpio_list[pin].digital(pin_map.status[status]);
+            if (typeof msg.payload === "object") {
+                msg.payload.status = status;
+            } else {
+                msg.payload = { status: status };
+            }
+            node.send(msg);
+        });
+
+        node.on("close", () => {
+            delete active_gpio_list[pin];
+        });
+    }
+    RED.nodes.registerType("lot.Gpio.on", lot_Gpio_on_node);
+
+    // lot.Gpio.on.button
+    RED.httpAdmin.post(
+        "/lot.Gpio.on/:id",
+        RED.auth.needsPermission("lot.Gpio.on.write"),
+        function(req, res) {
+            const node = RED.nodes.getNode(req.params.id);
+            if (node != null) {
+                try {
+                    node.receive();
+                    res.sendStatus(200);
+                } catch (err) {
+                    res.sendStatus(500);
+                    node.error(
+                        RED._("lot.Gpio.on.failed", {
+                            error: err.toString()
+                        })
+                    );
+                }
+            } else {
+                res.sendStatus(404);
+            }
+        }
+    );
+
+    /*
+     * lot.Gpio.off()
+     */
+    function lot_Gpio_off_node(config) {
+        RED.nodes.createNode(this, config);
+
+        const node = this;
+        const pin = parseInt(RED.nodes.getNode(config.pin).pin);
+
+        if (!(pin in active_gpio_list)) {
+            active_gpio_list[pin] = new lot.Gpio(pin);
+        }
+
+        node.status({
+            fill: "blue",
+            shape: "dot",
+            text: pin
+        });
+
+        node.on("input", msg => {
+            const status = "lot.LOW";
+            active_gpio_list[pin].digital(pin_map.status[status]);
+            if (typeof msg.payload === "object") {
+                msg.payload.status = status;
+            } else {
+                msg.payload = { status: status };
+            }
+            node.send(msg);
+        });
+
+        node.on("close", () => {
+            delete active_gpio_list[pin];
+        });
+    }
+    RED.nodes.registerType("lot.Gpio.off", lot_Gpio_off_node);
+
+    // lot.Gpio.off.button
+    RED.httpAdmin.post(
+        "/lot.Gpio.off/:id",
+        RED.auth.needsPermission("lot.Gpio.off.write"),
+        function(req, res) {
+            const node = RED.nodes.getNode(req.params.id);
+            if (node != null) {
+                try {
+                    node.receive();
+                    res.sendStatus(200);
+                } catch (err) {
+                    res.sendStatus(500);
+                    node.error(
+                        RED._("lot.Gpio.off.failed", {
+                            error: err.toString()
+                        })
+                    );
+                }
+            } else {
+                res.sendStatus(404);
+            }
+        }
+    );
+
+    /*
      * lot.Gpio.toggle()
      */
     function lot_Gpio_toggle_node(config) {

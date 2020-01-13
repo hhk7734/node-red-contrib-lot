@@ -25,6 +25,56 @@
  */
 -->
 
+<script type="text/javascript">
+    function set_node_red_button_url(url) {
+        $.ajax({
+            url: url,
+            type: "POST",
+            error: function(jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 404) {
+                    RED.notify(
+                        node._("common.notification.error", {
+                            message: node._(
+                                "common.notification.errors.not-deployed"
+                            )
+                        }),
+                        "error"
+                    );
+                } else if (jqXHR.status == 500) {
+                    RED.notify(
+                        node._("common.notification.error", {
+                            message: node._("inject.errors.failed")
+                        }),
+                        "error"
+                    );
+                } else if (jqXHR.status == 0) {
+                    RED.notify(
+                        node._("common.notification.error", {
+                            message: node._(
+                                "common.notification.errors.no-response"
+                            )
+                        }),
+                        "error"
+                    );
+                } else {
+                    RED.notify(
+                        node._("common.notification.error", {
+                            message: node._(
+                                "common.notification.errors.unexpected",
+                                {
+                                    status: jqXHR.status,
+                                    message: textStatus
+                                }
+                            )
+                        }),
+                        "error"
+                    );
+                }
+            }
+        });
+    }
+</script>
+
 <!--
     lot.Gpio.mode(mode)
 -->
@@ -215,6 +265,98 @@
 </script>
 
 <!--
+    lot.Gpio.on()
+ -->
+
+<script type="text/javascript">
+    RED.nodes.registerType("lot.Gpio.on", {
+        category: "lot.Gpio",
+        color: "#aabbee",
+        defaults: {
+            name: { value: "lot.Gpio.on" },
+            pin: { value: "", required: true, type: "lot.pin" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "font-awesome/fa-toggle-on",
+        label: function() {
+            return this.name;
+        },
+        button: {
+            enabled: function() {
+                return !this.changed;
+            },
+            onclick: function() {
+                set_node_red_button_url("lot.Gpio.on/" + this.id);
+            }
+        },
+        inputLabels: "Any msg",
+        outputLabels: "msg.payload.status"
+    });
+</script>
+
+<script type="text/x-red" data-template-name="lot.Gpio.on">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="lot.Gpio.on">
+    </div>
+    <div class="form-row">
+        <label for="node-input-pin"><i class="fa fa-tag"></i> Pin</label>
+        <input type="number" id="node-input-pin">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="lot.Gpio.on">
+    <p></p>
+</script>
+
+<!--
+    lot.Gpio.off()
+ -->
+
+<script type="text/javascript">
+    RED.nodes.registerType("lot.Gpio.off", {
+        category: "lot.Gpio",
+        color: "#aabbee",
+        defaults: {
+            name: { value: "lot.Gpio.off" },
+            pin: { value: "", required: true, type: "lot.pin" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "font-awesome/fa-toggle-off",
+        label: function() {
+            return this.name;
+        },
+        button: {
+            enabled: function() {
+                return !this.changed;
+            },
+            onclick: function() {
+                set_node_red_button_url("lot.Gpio.off/" + this.id);
+            }
+        },
+        inputLabels: "Any msg",
+        outputLabels: "msg.payload.status"
+    });
+</script>
+
+<script type="text/x-red" data-template-name="lot.Gpio.off">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="lot.Gpio.off">
+    </div>
+    <div class="form-row">
+        <label for="node-input-pin"><i class="fa fa-tag"></i> Pin</label>
+        <input type="number" id="node-input-pin">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="lot.Gpio.off">
+    <p></p>
+</script>
+
+<!--
     lot.Gpio.toggle()
  -->
 
@@ -234,51 +376,7 @@
                 return !this.changed;
             },
             onclick: function() {
-                $.ajax({
-                    url: "lot.Gpio.toggle/" + this.id,
-                    type: "POST",
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        if (jqXHR.status == 404) {
-                            RED.notify(
-                                node._("common.notification.error", {
-                                    message: node._(
-                                        "common.notification.errors.not-deployed"
-                                    )
-                                }),
-                                "error"
-                            );
-                        } else if (jqXHR.status == 500) {
-                            RED.notify(
-                                node._("common.notification.error", {
-                                    message: node._("inject.errors.failed")
-                                }),
-                                "error"
-                            );
-                        } else if (jqXHR.status == 0) {
-                            RED.notify(
-                                node._("common.notification.error", {
-                                    message: node._(
-                                        "common.notification.errors.no-response"
-                                    )
-                                }),
-                                "error"
-                            );
-                        } else {
-                            RED.notify(
-                                node._("common.notification.error", {
-                                    message: node._(
-                                        "common.notification.errors.unexpected",
-                                        {
-                                            status: jqXHR.status,
-                                            message: textStatus
-                                        }
-                                    )
-                                }),
-                                "error"
-                            );
-                        }
-                    }
-                });
+                set_node_red_button_url("lot.Gpio.toggle/" + this.id);
             }
         },
         label: function() {
