@@ -489,4 +489,52 @@ module.exports = function(RED) {
             }
         }
     );
+
+    /*
+     * lot.Gpio.analog()
+     */
+    function lot_Gpio_analog_node(config) {
+        RED.nodes.createNode(this, config);
+
+        const node = this;
+        const pin = parseInt(RED.nodes.getNode(config.pin).pin);
+
+        if (!(pin in active_gpio_list)) {
+            active_gpio_list[pin] = new lot.Gpio(pin);
+        }
+
+        node.status({
+            fill: "grey",
+            shape: "dot",
+            text: pin
+        });
+
+        node.on("input", msg => {
+            let value;
+            if (msg.payload.value != undefined) {
+                value = parseInt(msg.payload.value);
+                active_gpio_list[pin].analog(value);
+                node.send(msg);
+            } else {
+                value = active_gpio_list[pin].analog();
+                if (typeof msg.payload === "object") {
+                    msg.payload.value = value;
+                } else {
+                    msg.payload = { value: value };
+                }
+                node.send(msg);
+            }
+
+            node.status({
+                fill: "red",
+                shape: "dot",
+                text: pin + "-" + value
+            });
+        });
+
+        node.on("close", () => {
+            delete active_gpio_list[pin];
+        });
+    }
+    RED.nodes.registerType("lot.Gpio.analog", lot_Gpio_analog_node);
 };
