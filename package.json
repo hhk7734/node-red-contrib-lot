@@ -1,6 +1,6 @@
 {
     "name": "node-red-contrib-lot",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Node-RED GPIO development library",
     "keywords": [
         "iot",
