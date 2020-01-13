@@ -237,6 +237,73 @@ module.exports = function(RED) {
     RED.nodes.registerType("lot.Gpio.drive", lot_Gpio_drive_node);
 
     /*
+     * lot.Gpio.digital()
+     */
+    function lot_Gpio_digital_node(config) {
+        RED.nodes.createNode(this, config);
+
+        const node = this;
+        const pin = parseInt(RED.nodes.getNode(config.pin).pin);
+
+        if (!(pin in active_gpio_list)) {
+            active_gpio_list[pin] = new lot.Gpio(pin);
+        }
+
+        let status = active_gpio_list[pin].digital(); // number
+        status = pin_map.status[status]; // number -> string
+
+        if (status == "lot.HIGH") {
+            node.status({
+                fill: "red",
+                shape: "dot",
+                text: pin + "-" + status
+            });
+        } else {
+            node.status({
+                fill: "grey",
+                shape: "ring",
+                text: pin + "-" + status
+            });
+        }
+
+        node.on("input", msg => {
+            if (msg.payload.status != undefined) {
+                status = msg.payload.status; // string
+                active_gpio_list[pin].digital(pin_map.status[status]);
+                node.send(msg);
+            } else {
+                status = active_gpio_list[pin].digital(); // number
+                status = pin_map.status[status]; // number -> string
+                if (typeof msg.payload === "object") {
+                    msg.payload.status = status;
+                } else {
+                    msg.payload = { status: status };
+                }
+                node.send(msg);
+            }
+
+            if (status == "lot.HIGH") {
+                node.status({
+                    fill: "red",
+                    shape: "dot",
+                    text: pin + "-" + status
+                });
+            } else {
+                node.status({
+                    fill: "grey",
+                    shape: "ring",
+                    text: pin + "-" + status
+                });
+            }
+        });
+
+        node.on("close", () => {
+            delete active_gpio_list[pin];
+        });
+    }
+    RED.nodes.registerType("lot.Gpio.digital", lot_Gpio_digital_node);
+
+    /*
      * lot.Gpio.toggle()
      */
     function lot_Gpio_toggle_node(config) {
